@@ -1,0 +1,265 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cmath>1
+
+using namespace std;
+
+class Estudiante {
+private:
+    string nombre;
+    int anionacimiento;
+    double promedio;
+    double presupuesto;
+
+public:
+    Estudiante(string n = "NN", int a = 0, double p = 0.0, double pre = 0.0) {
+        nombre = n;
+        anionacimiento = a;
+        promedio = p;
+        presupuesto = pre;
+    }
+
+    string getNombre() const { return nombre; }
+    int getAnioNacimiento() const { return anionacimiento; }
+    double getPromedio() const { return promedio; }
+    double getPresupuesto() const { return presupuesto; }
+
+    void setNombre(string n) { nombre = n; }
+    void setAnioNacimiento(int a) { anionacimiento = a; }
+    void setPromedio(double p) { promedio = p; }
+    void setPresupuesto(double pre) { presupuesto = pre; }
+};
+
+class Menu {
+private:
+    vector<Estudiante> estudiantes;
+
+    double calcularIndiceUniversidad(const Estudiante& e) const {
+        return abs(e.getPromedio() - 3.0) * e.getPresupuesto();
+    }
+
+public:
+    void InsertarEstudiante(const Estudiante& estudiante) {
+        estudiantes.push_back(estudiante);
+        cout << "Estudiante insertado al final: " << estudiante.getNombre() << endl;
+    }
+
+    void InsertarEstudiante(const Estudiante& estudiante, int indice) {
+        if (indice >= 0 && indice <= static_cast<int>(estudiantes.size())) {
+            estudiantes.insert(estudiantes.begin() + indice, estudiante);
+            cout << "Estudiante insertado en el indice " << indice << ": " << estudiante.getNombre() << endl;
+        } else {
+            cout << "Indice fuera de rango. No se pudo insertar." << endl;
+        }
+    }
+
+    void EliminarEstudiante() {
+        if (estudiantes.empty()) {
+            cout << "No hay estudiantes para eliminar." << endl;
+            return;
+        }
+        cout << "Estudiante eliminado del final: " << estudiantes.back().getNombre() << endl;
+        estudiantes.pop_back();
+    }
+
+    void EliminarEstudiante(int indice) {
+        if (estudiantes.empty()) {
+            cout << "El vector esta vacio. No se puede eliminar." << endl;
+            return;
+        }
+        if (indice >= 0 && indice < static_cast<int>(estudiantes.size())) {
+            cout << "Estudiante eliminado en el indice " << indice << ": " << estudiantes[indice].getNombre() << endl;
+            estudiantes.erase(estudiantes.begin() + indice);
+        } else {
+            cout << "Indice fuera de rango. No se pudo eliminar." << endl;
+        }
+    }
+
+    void ActualizarEstudiante(int indice, string nuevoNombre, int nuevoAnio, double nuevoPromedio, double nuevoPresupuesto) {
+        if (estudiantes.empty()) {
+            cout << "El vector esta vacio. No hay estudiantes para actualizar." << endl;
+            return;
+        }
+        if (indice >= 0 && indice < static_cast<int>(estudiantes.size())) {
+            estudiantes[indice].setNombre(nuevoNombre);
+            estudiantes[indice].setAnioNacimiento(nuevoAnio);
+            estudiantes[indice].setPromedio(nuevoPromedio);
+            estudiantes[indice].setPresupuesto(nuevoPresupuesto);
+            cout << "Estudiante en el indice " << indice << " actualizado correctamente." << endl;
+        } else {
+            cout << "Indice fuera de rango. No se pudo actualizar." << endl;
+        }
+    }
+
+    void OrdenarPorAnioNacimiento() {
+        if (estudiantes.empty()) {
+            cout << "El vector esta vacio. No hay nada que ordenar." << endl;
+            return;
+        }
+        sort(estudiantes.begin(), estudiantes.end(), [](const Estudiante& a, const Estudiante& b) {
+            return a.getAnioNacimiento() < b.getAnioNacimiento();
+        });
+        cout << "Ordenado por anio de nacimiento (ascendente)." << endl;
+    }
+
+    void OrdenarPorGPA() {
+        if (estudiantes.empty()) {
+            cout << "El vector esta vacio. No hay nada que ordenar." << endl;
+            return;
+        }
+        sort(estudiantes.begin(), estudiantes.end(), [](const Estudiante& a, const Estudiante& b) {
+            return a.getPromedio() < b.getPromedio();
+        });
+        cout << "Ordenado por GPA (ascendente)." << endl;
+    }
+
+    void OrdenarPorPresupuesto() {
+        if (estudiantes.empty()) {
+            cout << "El vector esta vacio. No hay nada que ordenar." << endl;
+            return;
+        }
+        sort(estudiantes.begin(), estudiantes.end(), [](const Estudiante& a, const Estudiante& b) {
+            return a.getPresupuesto() < b.getPresupuesto();
+        });
+        cout << "Ordenado por presupuesto (ascendente)." << endl;
+    }
+
+    void OrdenarPorIndiceUniversidad() {
+        if (estudiantes.empty()) {
+            cout << "El vector esta vacio. No hay nada que ordenar." << endl;
+            return;
+        }
+        sort(estudiantes.begin(), estudiantes.end(), [this](const Estudiante& a, const Estudiante& b) {
+            return calcularIndiceUniversidad(a) < calcularIndiceUniversidad(b);
+        });
+        cout << "Ordenado por indice universidad (ascendente)." << endl;
+    }
+
+    void ImprimirEstudiantes() const {
+        if (estudiantes.empty()) {
+            cout << "El vector de estudiantes esta vacio." << endl;
+            return;
+        }
+        cout << "\n--- LISTA DE ESTUDIANTES ---" << endl;
+        for (size_t i = 0; i < estudiantes.size(); i++) {
+            cout << "Indice [" << i << "] -> "
+                 << "Nombre: " << estudiantes[i].getNombre()
+                 << " | Anio Nac.: " << estudiantes[i].getAnioNacimiento()
+                 << " | GPA: " << estudiantes[i].getPromedio()
+                 << " | Presupuesto: " << estudiantes[i].getPresupuesto()
+                 << " | Indice Univ.: " << calcularIndiceUniversidad(estudiantes[i])
+                 << endl;
+        }
+        cout << "----------------------------\n" << endl;
+    }
+
+    void ejecutar() {
+        int opcion;
+        do {
+            cout << "\n===== MENU DE ESTUDIANTES =====\n"
+                 << "1. Insertar estudiante\n"
+                 << "2. Eliminar estudiante\n"
+                 << "3. Actualizar estudiante\n"
+                 << "4. Ordenar estudiantes\n"
+                 << "5. Imprimir estudiantes\n"
+                 << "0. Salir\n"
+                 << "Opcion: ";
+            cin >> opcion;
+
+            switch (opcion) {
+                case 1: {
+                    int modo, tipo;
+                    cout << "1. Al final | 2. En un indice: ";
+                    cin >> modo;
+                    cout << "1. Por defecto (NN, 0, 0, 0) | 2. Con datos: ";
+                    cin >> tipo;
+
+                    Estudiante e;
+                    if (tipo == 2) {
+                        string nom;
+                        int anio;
+                        double gpa, pre;
+                        cout << "Nombre: ";
+                        cin.ignore();
+                        getline(cin, nom);
+                        cout << "Anio de nacimiento: ";
+                        cin >> anio;
+                        cout << "GPA: ";
+                        cin >> gpa;
+                        cout << "Presupuesto: ";
+                        cin >> pre;
+                        e = Estudiante(nom, anio, gpa, pre);
+                    }
+
+                    if (modo == 1) InsertarEstudiante(e);
+                    else if (modo == 2) {
+                        int idx;
+                        cout << "Indice: ";
+                        cin >> idx;
+                        InsertarEstudiante(e, idx);
+                    } else cout << "Opcion invalida." << endl;
+                    break;
+                }
+                case 2: {
+                    int modo;
+                    cout << "1. Eliminar el ultimo | 2. Eliminar por indice: ";
+                    cin >> modo;
+                    if (modo == 1) EliminarEstudiante();
+                    else if (modo == 2) {
+                        int idx;
+                        cout << "Indice: ";
+                        cin >> idx;
+                        EliminarEstudiante(idx);
+                    } else cout << "Opcion invalida." << endl;
+                    break;
+                }
+                case 3: {
+                    int idx, anio;
+                    string nom;
+                    double gpa, pre;
+                    cout << "Indice a actualizar: ";
+                    cin >> idx;
+                    cout << "Nuevo nombre: ";
+                    cin.ignore();
+                    getline(cin, nom);
+                    cout << "Nuevo anio: ";
+                    cin >> anio;
+                    cout << "Nuevo GPA: ";
+                    cin >> gpa;
+                    cout << "Nuevo presupuesto: ";
+                    cin >> pre;
+                    ActualizarEstudiante(idx, nom, anio, gpa, pre);
+                    break;
+                }
+                case 4: {
+                    int crit;
+                    cout << "1. Anio | 2. GPA | 3. Presupuesto | 4. Indice Univ.: ";
+                    cin >> crit;
+                    if (crit == 1) OrdenarPorAnioNacimiento();
+                    else if (crit == 2) OrdenarPorGPA();
+                    else if (crit == 3) OrdenarPorPresupuesto();
+                    else if (crit == 4) OrdenarPorIndiceUniversidad();
+                    else cout << "Criterio invalido." << endl;
+                    break;
+                }
+                case 5:
+                    ImprimirEstudiantes();
+                    break;
+                case 0:
+                    cout << "Saliendo..." << endl;
+                    break;
+                default:
+                    cout << "Opcion invalida." << endl;
+            }
+        } while (opcion != 0);
+    }
+};
+
+int main() {
+    Menu menu;
+    menu.ejecutar();
+    return 0;
+}
+
